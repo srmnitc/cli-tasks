@@ -18,8 +18,11 @@ def fetch_task():
 def output_tasks(data):
 	col=50
 	colsmall = 10
-	puts(columns([(colored.red('Task')), col], [(colored.green('when?')), colsmall]))
+	puts(columns([(colored.blue('--------------------------------------------------')), col], [(colored.blue('----------')), colsmall]))
+	puts(columns([(colored.blue('Task')), col], [(colored.blue('When?')), colsmall]))
+	puts(columns([(colored.blue('--------------------------------------------------')), col], [(colored.blue('----------')), colsmall]))
 	for d in data:
 		if d["when"]==None:
 			d["when"]="whenever"
 		puts(columns([d["task"], col], [d["when"].strip(), colsmall]))
+	puts(columns([(colored.blue('--------------------------------------------------')), col], [(colored.blue('----------')), colsmall]))
