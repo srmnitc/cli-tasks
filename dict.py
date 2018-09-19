@@ -1,6 +1,7 @@
 
+# -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
-from PyInquirer import prompt, print_json
+from PyInquirer import  style_from_dict, Token,prompt, print_json, Separator
 import json
 import os
 import sys
@@ -12,8 +13,7 @@ args = Args()
 
 #here we switch between interactive or command line mode
 #terminal mode - 0, interactive - 1
-vmode=0
-kmode=''
+vmode=False
 
 #now process the flags
 argflags = dict(args.grouped)
@@ -21,22 +21,26 @@ argflags = dict(args.grouped)
 #process the arguments
 #at this point, mode, firstname and surname
 #lets simplify modes
-kmodelist = ['-mode','-m']
 vmodelist = ['interactive','i']
 
+#style for the cli
+style = style_from_dict({
+    Token.QuestionMark: '#E91E63 bold',
+    Token.Selected: '#673AB7 bold',
+    Token.Instruction: '',  # default
+    Token.Answer: '#2196f3 bold',
+    Token.Question: '#E91E63 bold',
+})
 
 #now lets assign the value
 if '-m' in args.flags:
-	try: 
-		if argflags["-mode"].all[0] in vmodelist
-			puts(colored.red("interactive2"))
-			break
-	try: 
-		argflags["-m"].all[0] in vmodelist:
-		puts(colored.green("interactive2"))
-		break
-	except:
-		puts(colored.blue("interactive2"))
+        if argflags["-m"].all[0] in vmodelist:
+                vmode=True
+		puts(colored.red("interactive2"))
+elif '-mode' in args.flags: 
+	if argflags["-mode"].all[0] in vmodelist:
+                vmode=True
+		
 
 identity = [
     {
@@ -62,4 +66,60 @@ if os.path.exists("test.json"):
     		infofound=True
 
 if not infofound:
-	print("nothing")
+	puts(colored.red("Your info was not found!"))
+        gidentity = prompt(identity,style=style)
+        with open("test.json", "w") as write_file:
+                json.dump(gidentity, write_file)
+
+#now if info is found alright
+questions = [
+    {
+        'type': 'checkbox',
+        'qmark': '😃',
+        'message': 'Select toppings',
+        'name': 'toppings',
+        'choices': [ 
+            {
+                'name': 'Ham'
+            },
+            {
+                'name': 'Ground Meat'
+            },
+            {
+                'name': 'Bacon'
+            },
+            {
+                'name': 'Mozzarella',
+                'checked': True
+            },
+            {
+                'name': 'Cheddar'
+            },
+            {
+                'name': 'Parmesan'
+            },
+            {
+                'name': 'Mushroom'
+            },
+            {
+                'name': 'Tomato'
+            },
+            {
+                'name': 'Pepperoni'
+            },
+            {
+                'name': 'Pineapple'
+            },
+            {
+                'name': 'Olives',
+            },
+            {
+                'name': 'Extra cheese'
+            }
+        ],
+        'validate': lambda answer: 'You must choose at least one topping.' \
+            if len(answer) == 0 else True
+    }
+]
+
+answers = prompt(questions, style=style)
