@@ -4,11 +4,31 @@ from task_container import task
 from clint.textui import puts, colored
 from clint.textui import columns
 import datetime
+import sys
 
 #some things that re needed
 StrptimeFmt = "%Y-%m-%d %H:%M:%S.%f"
 #done = colored.green("0")
 #notdone = colored.red("0")
+loc = sys.argv[0]
+locsplit = loc.split("/")
+locsplit = locsplit[:-1]
+glue = "/"
+s = glue.join(locsplit)
+s = os.path.join(s,"config.json")
+if os.path.exists(s):
+	data = []
+	with open(s,"r") as read_file:
+		for line in read_file:
+			data.append(json.loads(line))
+	taskfile=data[0]["workfile"]
+	taskbackup = taskfile+".bkup"
+	if not os.path.exists(taskfile):
+		print "No task file - maybe add tasks first?"
+		raise SystemExit()
+else:
+	print "Cannot find task file. please check if config.json is set in the code dir"
+	raise SystemExit()
 
 
 def create_task(taskdetails):
@@ -25,7 +45,7 @@ def create_task(taskdetails):
 
 def fetch_task():
 	data = []
-	with open("tasks.json","r") as read_file:
+	with open(taskfile,"r") as read_file:
 		for line in read_file:
 			data.append(json.loads(line))
 	return data
@@ -102,9 +122,9 @@ def done():
 
 
 def reset():
-	if os.path.exists("#tasks.json#"):
-		os.remove("#tasks.json#")
-	os.rename("tasks.json","#tasks.json#")
+	if os.path.exists(taskbackup):
+		os.remove(taskbackup)
+	os.rename(taskfile,taskbackup)
 
 #some random helpers
 def header(col):
@@ -169,7 +189,7 @@ def find_colsize(data):
 	return max(lens)		
 
 def write_task(taskdetails):
-	with open("tasks.json","a") as write_file:
+	with open(taskfile,"a") as write_file:
 		json.dump(taskdetails,write_file)
 		write_file.write("\n")
 	write_file.close()
