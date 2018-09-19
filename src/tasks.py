@@ -5,6 +5,7 @@ from clint.textui import puts, colored
 from clint.textui import columns
 import datetime
 import sys
+import random
 
 #some things that re needed
 StrptimeFmt = "%Y-%m-%d %H:%M:%S.%f"
@@ -14,8 +15,9 @@ loc = sys.argv[0]
 locsplit = loc.split("/")
 locsplit = locsplit[:-1]
 glue = "/"
-s = glue.join(locsplit)
-s = os.path.join(s,"config.json")
+sa = glue.join(locsplit)
+s = os.path.join(sa,"config.json")
+qfile = os.path.join(sa,"src","quote.dump")
 if os.path.exists(s):
 	data = []
 	with open(s,"r") as read_file:
@@ -118,6 +120,8 @@ def formatted_print(data):
 	footer(totcol)
 	print " %2.2f %% tasks done!"%(finished*100)
 	footer(totcol)
+	puts(columns([(colored.blue(random_quote())), totcol]))
+	footer(totcol)
 	return showorder
 
 def delete():
@@ -141,6 +145,13 @@ def done():
 	for d in data:
 		write_task(d)
 	print "done!"
+
+def random_quote():
+	data = []
+	for line in open(qfile,'r'):
+		data.append(line.strip())
+	i = random.randint(0,len(data)-1)
+	return data[i]
 
 
 
