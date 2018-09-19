@@ -72,38 +72,59 @@ def formatted_print(data):
 	header(totcol)
 
 	count=0
-	finished=0
-	for d in data:
+	showorder=[]
+	donetasks=[]
+	for c,d in enumerate(data):
+		if not d["status"]:
+			count+=1
+			showorder.append(c)
+			#fix the time
+			d = fix_when(d)
+			#find when the task was added
+			ttime,tstring = find_from_when(d)
+			#format the color according to priority
+			taskname = color_priority(d)
+			#now we are ready to print out
+			taskstring = ((" added %d %s ago, due %s, @%s")%(ttime,tstring,d["when"],d["group"]))
+			taskstring = colored.white(taskstring)
+		
+			#get the status
+			status = colored.red("0")
+
+			puts(columns([(str(count)), colsupersmall],[(status), colsupersmall],[(taskname), col], [(taskstring), col2]))
+			#puts('{0: <80}'.format(taskname)+ taskstring)
+		else:
+			donetasks.append(c)
+
+	#now process done tasks
+	for c in donetasks:
 		count+=1
+		showorder.append(c)
 		#fix the time
-		d = fix_when(d)
+		d = fix_when(data[c])
 		#find when the task was added
 		ttime,tstring = find_from_when(d)
 		#format the color according to priority
 		taskname = color_priority(d)
-		#now we are ready to print out
-		taskstring = ((" added %d %s ago, due %s, @%s")%(ttime,tstring,d["when"],d["group"]))
-		taskstring = colored.white(taskstring)
 		
-		#get the status
-		if d["status"]==True:
-			status = colored.green("0")
-			finished+=1
-		else:
-			status = colored.red("0")
-
+		status = colored.green("0")
+		taskstring = ((" done %d %s ago, @%s")%(ttime,tstring,d["group"]))
+		taskstring = colored.cyan(taskstring)
+		
 		puts(columns([(str(count)), colsupersmall],[(status), colsupersmall],[(taskname), col], [(taskstring), col2]))
-		#puts('{0: <80}'.format(taskname)+ taskstring)
-	finished = finished/float(count)
+
+
+	finished = len(donetasks)/float(len(data))
 	footer(totcol)
-	print " %2.2f %% tasks done!"%finished
+	print " %2.2f %% tasks done!"%(finished*100)
 	footer(totcol)
+	return showorder
 
 def delete():
 	data = fetch_task()
-	formatted_print(data)
+	showorder = formatted_print(data)
 	doneid = input("Serial number of task to be deleted: ")
-	data.pop(doneid-1)
+	data.pop(showorder[doneid-1])
 	reset()
 	for d in data:
 		write_task(d)
@@ -111,9 +132,11 @@ def delete():
 
 def done():
 	data = fetch_task()
-	formatted_print(data)
+	showorder = formatted_print(data)
 	doneid = input("Serial number of task to be marked done: ")
-	data[doneid-1]["status"]=True
+	#print data[doneid-1]
+	data[showorder[doneid-1]]["status"]=True
+	data[showorder[doneid-1]]["finished"]=datetime.datetime.now().__str__()
 	reset()
 	for d in data:
 		write_task(d)
@@ -144,6 +167,8 @@ def fix_when(d):
 
 def find_from_when(d):
 	created = datetime.datetime.strptime(d["created"],StrptimeFmt)
+	if d["status"]==True:
+		created = datetime.datetime.strptime(d["finished"],StrptimeFmt)
 	now = datetime.datetime.now()
 	diff = now-created
 	days = diff.days
@@ -171,6 +196,9 @@ def find_from_when(d):
 	return ttime,tstring
 
 def color_priority(d):
+
+	if d["status"]==True:
+		return colored.cyan(d["description"])
 	if d["priority"]==None:
 		return colored.white(d["description"])
 	elif d["priority"]==1:

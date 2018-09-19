@@ -65,7 +65,7 @@ if taskdetails['main_option']=='task':
 	create_task(taskdetails)
 	print "task created"
 elif taskdetails['main_option']=='show':
-	output_tasks(taskdetails["group"])
+	dontneed = output_tasks(taskdetails["group"])
 elif taskdetails['main_option']=='reset':
 	reset()
 elif taskdetails['main_option']=='done':
