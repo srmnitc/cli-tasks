@@ -68,9 +68,9 @@ def formatted_print(data):
 	col = colsize+5
 	col2 = 50
 	colsupersmall = 1
-
+	colnum = 3
 	#do header
-	totcol = col+col2+colsupersmall
+	totcol = col+col2+colsupersmall+colnum
 	header(totcol)
 
 	count=0
@@ -93,7 +93,7 @@ def formatted_print(data):
 			#get the status
 			status = colored.red("0")
 
-			puts(columns([(str(count)), colsupersmall],[(status), colsupersmall],[(taskname), col], [(taskstring), col2]))
+			puts(columns([(str(count)), colnum],[(status), colsupersmall],[(taskname), col], [(taskstring), col2]))
 			#puts('{0: <80}'.format(taskname)+ taskstring)
 		else:
 			donetasks.append(c)
@@ -111,9 +111,9 @@ def formatted_print(data):
 		
 		status = colored.green("0")
 		taskstring = ((" done %d %s ago, @%s")%(ttime,tstring,d["group"]))
-		taskstring = colored.cyan(taskstring)
+		taskstring = colored.blue(taskstring)
 		
-		puts(columns([(str(count)), colsupersmall],[(status), colsupersmall],[(taskname), col], [(taskstring), col2]))
+		puts(columns([(str(count)), colnum],[(status), colsupersmall],[(taskname), col], [(taskstring), col2]))
 
 
 	finished = len(donetasks)/float(len(data))
@@ -209,7 +209,7 @@ def find_from_when(d):
 def color_priority(d):
 
 	if d["status"]==True:
-		return colored.cyan(d["description"])
+		return colored.blue(d["description"])
 	if d["priority"]==None:
 		return colored.white(d["description"])
 	elif d["priority"]==1:
