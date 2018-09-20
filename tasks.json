@@ -1,6 +1,0 @@
-{"status": false, "group": "mo", "description": "start new Mo sims for EAM and FS", "created": "2018-09-19 16:29:04.133687", "when": "whenever", "priority": 2}
-{"status": false, "group": "mo", "description": "calculate Tm for SNAP", "created": "2018-09-19 16:29:21.261685", "when": "whenever", "priority": 3}
-{"status": true, "group": "muenster", "description": "prepare the potential file for Pb-Bi", "created": "2018-09-19 16:29:52.868987", "when": "whenever", "priority": 1, "finished": "2018-09-19 18:24:35.172283"}
-{"status": false, "group": "cli-tasks", "description": "add task edit feature", "created": "2018-09-19 16:32:09.983510", "when": "whenever", "priority": 3}
-{"status": false, "group": "cli-tasks", "description": "add average pending time", "created": "2018-09-19 16:32:23.850078", "when": "whenever", "priority": 3}
-{"status": false, "group": "cli-tasks", "description": "todays productivity - finished tasks/added and finished", "created": "2018-09-19 17:32:38.573589", "when": "whenever", "priority": 3}
