@@ -6,7 +6,7 @@ Main file which provides the command line interface
 """
 
 import argparse as ap
-from cli-tasks import create_task,output_tasks,reset,done,delete
+from clitasks.tasks import Task
 
 
 def main():
@@ -14,11 +14,11 @@ def main():
 	Main function which runs when cli-tasks is called
 	"""
 	arg = ap.ArgumentParser(description="cli-tasks command line taskbook\n. ",usage='''
-			cli-tasks <command> [<args>]
+			clitasks <command> [<args>]
 
 			Short guide
 			-----------
-			task -d (--description) : description
+			task -n (--new) : description
 			optional: -w (--when) : due date
 				  -p (--priority) : 1(high),2(medium) or 3(low)
 				  -g (--group) : name of the task group
@@ -32,7 +32,7 @@ def main():
 	subarg = arg.add_subparsers(dest='main_option')
 
 	#th main parser part for task
-	arg_task = subarg.add_parser("new",help="keyword to add a task")
+	arg_task = subarg.add_parser("task",help="keyword to add a task")
 	#now sub args for this one
 	#description
 	arg_task.add_argument("-d", "--description", required=True,
@@ -65,15 +65,20 @@ def main():
 
 	taskdetails = vars(arg.parse_args())
 
+	task = Task()
 
-	if taskdetails['main_option'] is 'new':
-		create_task(taskdetails)
+	if taskdetails['main_option'] == 'task':
+		task.create_task(taskdetails)
 		print("task created")
-	elif taskdetails['main_option'] is 'show':
-		dontneed = output_tasks(taskdetails["group"])
-	elif taskdetails['main_option'] is 'reset':
-		reset()
-	elif taskdetails['main_option'] is 'done':
-		done()
-	elif taskdetails['main_option'] is 'delete':
-		delete()
+	elif taskdetails['main_option'] == 'show':
+		print("showing")
+		dontneed = task.output_tasks(taskdetails["group"])
+	elif taskdetails['main_option'] == 'reset':
+		task.reset()
+	elif taskdetails['main_option'] == 'done':
+		task.done()
+	elif taskdetails['main_option'] == 'delete':
+		task.delete()
+	else:
+		print(taskdetails['main_option'])
+		print("Unknown main option")

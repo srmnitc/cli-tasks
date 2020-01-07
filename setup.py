@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-    name="cli-tasks",
+    name="clitasks",
     version="0.0.1",
     author="Sarath Menon",
     author_email="sarath.menon@rub.de",
@@ -20,8 +20,7 @@ setuptools.setup(
     #scripts=['bin/pathsampling', 'bin/pathsampling_kernel'],
     entry_points={
         'console_scripts': [
-            'pathsampling = pathsampling.bin.gtis:main',
-            'pathsampling_kernel = pathsampling.bin.gtiskernel:main',
+            'clitasks = clitasks.bin.run:main',
         ],
     }
 )
