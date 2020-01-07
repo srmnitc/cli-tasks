@@ -1,4 +1,4 @@
-import json
+import yaml
 import os
 from task_container import task
 from clint.textui import puts, colored
@@ -9,15 +9,10 @@ import random
 
 #some things that re needed
 StrptimeFmt = "%Y-%m-%d %H:%M:%S.%f"
+
 #done = colored.green("0")
 #notdone = colored.red("0")
-loc = sys.argv[0]
-locsplit = loc.split("/")
-locsplit = locsplit[:-1]
-glue = "/"
-sa = glue.join(locsplit)
-s = os.path.join(sa,"config.json")
-qfile = os.path.join(sa,"src","quote.dump")
+
 if os.path.exists(s):
 	data = []
 	with open(s,"r") as read_file:
@@ -89,7 +84,7 @@ def formatted_print(data):
 			#now we are ready to print out
 			taskstring = ((" added %d %s ago, due %s, @%s")%(ttime,tstring,d["when"],d["group"]))
 			taskstring = colored.white(taskstring)
-		
+
 			#get the status
 			status = colored.red("0")
 
@@ -108,11 +103,11 @@ def formatted_print(data):
 		ttime,tstring = find_from_when(d)
 		#format the color according to priority
 		taskname = color_priority(d)
-		
+
 		status = colored.green("0")
 		taskstring = ((" done %d %s ago, @%s")%(ttime,tstring,d["group"]))
 		taskstring = colored.blue(taskstring)
-		
+
 		puts(columns([(str(count)), colnum],[(status), colsupersmall],[(taskname), col], [(taskstring), col2]))
 
 
@@ -225,7 +220,7 @@ def find_colsize(data):
 
 	maxlength = 0
 	lens = [len(x["description"]) for x in data ]
-	return max(lens)		
+	return max(lens)
 
 def write_task(taskdetails):
 	with open(taskfile,"a") as write_file:
