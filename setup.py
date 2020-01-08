@@ -8,7 +8,7 @@ setuptools.setup(
     description="Command line task manager",
     #long_description=long_description,
     #long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    download_url="https://github.com/srmnitc/cli-tasks/archive/0.0.1.tar.gz",
     packages=setuptools.find_packages('src'),
     package_dir={'':'src'},
     classifiers=[
