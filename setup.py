@@ -16,7 +16,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: Linux",
     ],
-    install_requires=[''],
+    install_requires=['clint'],
     #scripts=['bin/pathsampling', 'bin/pathsampling_kernel'],
     entry_points={
         'console_scripts': [
