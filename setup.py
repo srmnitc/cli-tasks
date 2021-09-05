@@ -4,7 +4,7 @@ setuptools.setup(
     name="clitasks",
     version="0.0.1",
     author="Sarath Menon",
-    author_email="sarath.menon@rub.de",
+    author_email="sarath.menon@mailbox.org",
     description="Command line task manager",
     #long_description=long_description,
     #long_description_content_type="text/markdown",
@@ -16,8 +16,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: Linux",
     ],
-    install_requires=['clint'],
-    #scripts=['bin/pathsampling', 'bin/pathsampling_kernel'],
+    install_requires=['rich', 'tinydb'],
     entry_points={
         'console_scripts': [
             'clitasks = clitasks.bin.run:main',

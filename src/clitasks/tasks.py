@@ -1,11 +1,12 @@
-import json
 import os
-from clitasks.task_container import task
-from clint.textui import puts, colored
-from clint.textui import columns
 import datetime
 import sys
 import random
+from tinydb import TinyDB, Query
+from rich.console import Console
+from rich.table import Table
+
+from clitasks.task_container import task
 from clitasks.quote import quotes
 
 #some things that re needed
@@ -19,47 +20,63 @@ class Task:
         """
         Do an init run
         """
-        self.taskdir = os.path.join(os.environ['HOME'],'cli-tasks')
-        self.taskfile = os.path.join(self.taskdir, 'tasks.json')
-        self.taskbackup = ".".join([self.taskfile, 'bkup'])
+        #set up a task dict
+        self.taskdir = os.path.join(os.environ['HOME'],
+            'cli-tasks')
+        self.taskfile = os.path.join(self.taskdir, 
+            'tasks.json')
+        self.taskbackup = ".".join([self.taskfile, 
+            'bkup'])
         if not os.path.exists(self.taskdir):
             print("task dir not found, creating one..")
             os.mkdir(self.taskdir)
-        if not os.path.exists(self.taskfile):
-            print("task file not found, creating one..")
-            open(self.taskfile, 'a').close()
+        #start a db connection
+        self.db = db = TinyDB(self.taskfile)
 
     def create_task(self, taskdetails):
+        """
+        Create a new task
+        """
         #remove the main_option
         taskdetails.pop('main_option', None)
+        
         #we have to add the current date as the date of setting the task
         now = datetime.datetime.now()
+        
         #add the time to the dictionary
         taskdetails["created"] = now.__str__()
         taskdetails["status"] = False
-        #print taskdetails["created"]
-        #try to reconvert
         self.write_task(taskdetails)
 
     def fetch_task(self):
-        data = []
-        with open(self.taskfile, "r") as read_file:
-            for line in read_file:
-                data.append(json.loads(line))
+        """
+        Fetch all tasks
+        """
+        data = self.db.all()
         return data
 
     def output_tasks(self, group = None):
-        #first sort by groups
-        data = self.fetch_task()
-        if group!=None:
-            data = [d for d in data if d["group"]==group ]
+        """
+        Fetch tasks by group
+        """
+        if group is not None:
+            Group = Query()
+            data = db.search(Group.group == group)
+        else:
+            data = self.fetch_task()
         self.formatted_print(data)
 
 
     def formatted_print(self, data):
+        """
+        Print formatted data
+        """
+
+        """
         if len(data) == 0:
             print("empty task file")
             return
+
         #we need autoformating
         colsize = self.find_colsize(data)
         col = colsize+5
@@ -120,8 +137,10 @@ class Task:
         puts(columns([(colored.blue(self.random_quote())), totcol]))
         self.footer(totcol)
         return showorder
+        """
 
     def delete(self):
+        """
         data = self.fetch_task()
         showorder = self.formatted_print(data)
         doneid = input("Serial number of task to be deleted: ")
@@ -130,8 +149,10 @@ class Task:
         for d in data:
             self.write_task(d)
         print("deleted!")
+        """
 
     def done(self):
+        """
         data = self.fetch_task()
         showorder = self.formatted_print(data)
         doneid = int(input("Serial number of task to be marked done: "))
@@ -142,17 +163,19 @@ class Task:
         for d in data:
             self.write_task(d)
         print("done!")
+        """
 
     def random_quote(self):
         i = random.randint(0,len(quotes)-1)
         return quotes[i]
 
     def reset(self):
+        """
         if os.path.exists(self.taskbackup):
             os.remove(self.taskbackup)
         os.rename(self.taskfile, self.taskbackup)
         open(self.taskfile, 'a').close()
-
+        """
 
     #some random helpers
     def header(self, col):
@@ -222,8 +245,4 @@ class Task:
         return max(lens)
 
     def write_task(self, taskdetails):
-        print("writing tasks")
-        with open(self.taskfile,"a") as write_file:
-            json.dump(taskdetails,write_file)
-            write_file.write("\n")
-        write_file.close()
+        self.db.insert(taskdetails)
