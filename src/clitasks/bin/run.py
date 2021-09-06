@@ -51,7 +51,7 @@ def main():
 
 	#the mark commands
 	remove_task = subarg.add_parser("remove",help="keyword to remove all tasks")
-	remove_task.add_argument("-g", "--group", required=False,
+	remove_task.add_argument("-g", "--group", required=True,
 	help="specify -g followed by groupname")
 
 
