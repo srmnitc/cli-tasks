@@ -13,27 +13,7 @@ def main():
 	"""
 	Main function which runs when cli-tasks is called
 	"""
-	arg = ap.ArgumentParser(description="cli-tasks command line taskbook\n. ",usage='''
-			todo <command> [<args>]
-
-			Short guide
-			-----------
-			add:
-				-t (--title) : title of task
-				-d (--description) : description of task
-				-w (--when) : due date
-				-p (--priority) : 1(high),2(medium) or 3(low)
-				-g (--group) : name of the task group
-			
-			show: 
-				-f (--fetch) : fetch all tasks or by group
-
-			done: 
-				-d (--done) <task number> : mark the task as done
-			
-			remove: remove all tasks
-
-		''')
+	arg = ap.ArgumentParser(description="cli-tasks command line taskbook\n. ")
 
 	#add a subarg parser
 	subarg = arg.add_subparsers(dest='main_option')
@@ -66,9 +46,13 @@ def main():
 
 	#the mark commands
 	done_task = subarg.add_parser("done",help="keyword to mark a task as done")
+	done_task.add_argument("-g", "--group", required=False,
+	help="specify -g followed by groupname")
 
 	#the mark commands
 	remove_task = subarg.add_parser("remove",help="keyword to remove all tasks")
+	remove_task.add_argument("-g", "--group", required=False,
+	help="specify -g followed by groupname")
 
 
 	taskdetails = vars(arg.parse_args())
