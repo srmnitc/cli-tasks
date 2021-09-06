@@ -54,6 +54,7 @@ class Task:
         
         #add the time to the dictionary
         taskdetails["created"] = now.__str__()
+        taskdetails["due"] = ""
         taskdetails["status"] = False
         taskdetails["id"] = str(uuid.uuid4())
 
