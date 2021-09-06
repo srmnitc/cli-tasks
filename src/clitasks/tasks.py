@@ -190,7 +190,7 @@ class Task:
             print("choose a valid option")
             return
 
-        dkey = datanotdone[dno]["id"]
+        dkey = datanotdone[dno-1]["id"]
         Group = Query()
         self.db.update({'status': True}, Group.id == dkey)
         print('updated')
