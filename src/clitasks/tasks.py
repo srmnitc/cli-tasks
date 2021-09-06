@@ -5,6 +5,7 @@ import random
 from tinydb import TinyDB, Query
 from rich.console import Console
 from rich.table import Table
+from rich.text import Text
 
 from clitasks.task_container import task
 from clitasks.quote import quotes
@@ -66,78 +67,72 @@ class Task:
             data = self.fetch_task()
         self.formatted_print(data)
 
+    def color_text(self, strtocolor, priority):
+        """
+        Color text according to priority
+        """
+        prdict = {"1": "#EF5350", "2": "#FF8F00", "3": "#9E9D24", "0": "#78909C"}
+        text = Text()
+        text.append(str(strtocolor), style=prdict[str(priority)])
+        return text
+
+    def get_done_tasks(self, data):
+        """
+        Get percentage of tasks done
+        """
+        datadone = []
+        datanotdone = []
+
+        for d in data:
+            if d["status"]:
+                datadone.append(d)
+            else:
+                datanotdone.append(d)
+
+        return datadone, datanotdone
 
     def formatted_print(self, data):
         """
         Print formatted data
         """
+        datadone, datanotdone = self.get_done_tasks(data)
+        donepercent = "%d"%((len(datadone)//len(datanotdone))*100)
 
-        """
-        if len(data) == 0:
-            print("empty task file")
-            return
-
-        #we need autoformating
-        colsize = self.find_colsize(data)
-        col = colsize+5
-        col2 = 50
-        colsupersmall = 1
-        colnum = 3
-        #do header
-        totcol = col+col2+colsupersmall+colnum
-        self.header(totcol)
-
-        count=0
-        showorder=[]
-        donetasks=[]
-        for c,d in enumerate(data):
-            if not d["status"]:
-                count+=1
-                showorder.append(c)
-                #fix the time
-                d = self.fix_when(d)
-                #find when the task was added
-                ttime,tstring = self.find_from_when(d)
-                #format the color according to priority
-                taskname = self.color_priority(d)
-                #now we are ready to print out
-                taskstring = ((" added %d %s ago, due %s, @%s")%(ttime,tstring,d["when"],d["group"]))
-                taskstring = colored.white(taskstring)
-
-                #get the status
-                status = colored.red("0")
-
-                puts(columns([(str(count)), colnum],[(status), colsupersmall],[(taskname), col], [(taskstring), col2]))
-                #puts('{0: <80}'.format(taskname)+ taskstring)
+        table = Table(title="cli tasks", style="white")
+        table.add_column("#")
+        table.add_column("Time")
+        table.add_column("Status")
+        table.add_column("Title")
+        table.add_column("Details")
+        table.add_column("Priority")
+        table.add_column("Due")
+        table.add_column("Group")
+        
+        for count, d in enumerate([*datanotdone, *datadone]):
+            
+            time, timestr = self.find_from_when(d)
+            if d["status"]:
+                r2 = ":heavy_check_mark:"
+                d['priority'] = 0
+                r0 = self.color_text("-", d['priority'])
             else:
-                donetasks.append(c)
+                r2 = ":x:"
+                r0 = self.color_text("%s"%str(count), d['priority'])
+                
 
-        #now process done tasks
-        for c in donetasks:
-            count+=1
-            showorder.append(c)
-            #fix the time
-            d = self.fix_when(data[c])
-            #find when the task was added
-            ttime,tstring = self.find_from_when(d)
-            #format the color according to priority
-            taskname = self.color_priority(d)
+            r1 = "%.1f %s ago.."%(time, timestr)
+            r1 = self.color_text(r1, d['priority'])        
+            r3 = self.color_text(d["title"], d['priority'])
+            r4 = self.color_text(d['description'], d['priority'])
+            r5 = self.color_text(d['priority'], d['priority'])
+            r6 = self.color_text(d['due'], d['priority'])
+            r7 = self.color_text(d['group'], d['priority'])
+            table.add_row(r1, r2, r3, r4, r5, r6, r7)
 
-            status = colored.green("0")
-            taskstring = ((" done %d %s ago, @%s")%(ttime,tstring,d["group"]))
-            taskstring = colored.blue(taskstring)
-
-            puts(columns([(str(count)), colnum],[(status), colsupersmall],[(taskname), col], [(taskstring), col2]))
-
-
-        finished = len(donetasks)/float(len(data))
-        self.footer(totcol)
-        print(" %2.2f %% tasks done!"%(finished*100))
-        self.footer(totcol)
-        puts(columns([(colored.blue(self.random_quote())), totcol]))
-        self.footer(totcol)
-        return showorder
-        """
+        console = Console()
+        console.print(table)
+        console.print("%s% tasks done!"%donepercent, style="#42A5F5")
+        console.print(self.random_quote(), style="#42A5F5")
 
     def delete(self):
         """
