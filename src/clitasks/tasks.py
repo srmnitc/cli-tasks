@@ -6,6 +6,8 @@ from tinydb import TinyDB, Query
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
+from rich.prompt import IntPrompt
+import uuid
 
 from clitasks.task_container import task
 from clitasks.quote import quotes
@@ -34,6 +36,12 @@ class Task:
         #start a db connection
         self.db = db = TinyDB(self.taskfile)
 
+    def write_task(self, taskdetails):
+        """
+        Write a task to db
+        """
+        self.db.insert(taskdetails)
+
     def create_task(self, taskdetails):
         """
         Create a new task
@@ -47,6 +55,8 @@ class Task:
         #add the time to the dictionary
         taskdetails["created"] = now.__str__()
         taskdetails["status"] = False
+        taskdetails["id"] = str(uuid.uuid4())
+
         self.write_task(taskdetails)
 
     def fetch_task(self):
@@ -62,16 +72,17 @@ class Task:
         """
         if group is not None:
             Group = Query()
-            data = db.search(Group.group == group)
+            data = self.db.search(Group.group == group)
         else:
             data = self.fetch_task()
         self.formatted_print(data)
+        return data
 
     def color_text(self, strtocolor, priority):
         """
         Color text according to priority
         """
-        prdict = {"1": "#EF5350", "2": "#FF8F00", "3": "#9E9D24", "0": "#78909C"}
+        prdict = {"1": "#EF5350", "2": "#FF8F00", "3": "#9E9D24", "0": "#78909C", "9":"#42A5F5"}
         text = Text()
         text.append(str(strtocolor), style=prdict[str(priority)])
         return text
@@ -117,7 +128,7 @@ class Task:
                 r0 = self.color_text("-", d['priority'])
             else:
                 r2 = ":x:"
-                r0 = self.color_text("%s"%str(count), d['priority'])
+                r0 = self.color_text("%s"%str(count+1), d['priority'])
                 
 
             r1 = "%.1f %s ago.."%(time, timestr)
@@ -127,38 +138,59 @@ class Task:
             r5 = self.color_text(d['priority'], d['priority'])
             r6 = self.color_text(d['due'], d['priority'])
             r7 = self.color_text(d['group'], d['priority'])
-            table.add_row(r1, r2, r3, r4, r5, r6, r7)
+            table.add_row(r0, r1, r2, r3, r4, r5, r6, r7)
 
         console = Console()
         console.print(table)
-        console.print("%s% tasks done!"%donepercent, style="#42A5F5")
-        console.print(self.random_quote(), style="#42A5F5")
+        t = self.color_text("%s%% tasks done!"%donepercent, 0)
+        console.print(t)
+        t = self.color_text(self.random_quote(), 9)
+        console.print(t)
 
-    def delete(self):
+    def delete(self, group=None):
         """
-        data = self.fetch_task()
-        showorder = self.formatted_print(data)
-        doneid = input("Serial number of task to be deleted: ")
-        data.pop(showorder[doneid-1])
-        self.reset()
-        for d in data:
-            self.write_task(d)
-        print("deleted!")
+        Delete tasks
         """
+        data = self.output_tasks(group=group)
+        datadone, datanotdone = self.get_done_tasks(data)
 
-    def done(self):
+        if len(datanotdone) == 0:
+            print("nothing to delete!")
+            return
+
+        #now ask for option
+        dno = IntPrompt.ask("Which task should be deleted? (1-%d)"%len(datanotdone))
+        if not (0 < dno <= len(datanotdone)):
+            print("choose a valid option")
+            return
+
+        dkey = datanotdone[dno]["id"]
+        Group = Query()
+        self.db.remove(Group.id == dkey)
+        print('deleted')
+
+    def done(self, group=None):
         """
-        data = self.fetch_task()
-        showorder = self.formatted_print(data)
-        doneid = int(input("Serial number of task to be marked done: "))
-        #print data[doneid-1]
-        data[showorder[doneid-1]]["status"]=True
-        data[showorder[doneid-1]]["finished"]=datetime.datetime.now().__str__()
-        self.reset()
-        for d in data:
-            self.write_task(d)
-        print("done!")
+        Mark tasks as done
         """
+        data = self.output_tasks(group=group)
+        datadone, datanotdone = self.get_done_tasks(data)
+
+        if len(datanotdone) == 0:
+            print("nothing to mark as done!")
+            return
+
+        #now ask for option
+        dno = IntPrompt.ask("Which task should be marked as done? (1-%d)"%len(datanotdone))
+        if not (0 < dno <= len(datanotdone)):
+            print("choose a valid option")
+            return
+
+        dkey = datanotdone[dno]["id"]
+        Group = Query()
+        self.db.update({'status': True}, Group.id == dkey)
+        print('updated')
+
 
     def random_quote(self):
         i = random.randint(0,len(quotes)-1)
@@ -166,29 +198,16 @@ class Task:
 
     def reset(self):
         """
-        if os.path.exists(self.taskbackup):
-            os.remove(self.taskbackup)
-        os.rename(self.taskfile, self.taskbackup)
-        open(self.taskfile, 'a').close()
+        Hard reset all tasks
         """
-
-    #some random helpers
-    def header(self, col):
-        puts(columns([(colored.blue('-'*col)), col]))
-        print("Tasks")
-        #puts(columns([(colored.white('Tasks')), col]))
-        puts(columns([(colored.blue('-'*col)), col]))
-
-    def footer(self, col):
-        puts(columns([(colored.blue('-'*col)), col]))
-
-
-    def fix_when(self, d):
-        if d["when"]==None:
-            d["when"]="whenever"
-        return d
-
+        dno = IntPrompt.ask("This will really delete all tasks, press 1 to continue.")        
+        if dno==1:
+            self.db.truncate()
+            
     def find_from_when(self, d):
+        """
+        Find from when task is pending
+        """
         created = datetime.datetime.strptime(d["created"],StrptimeFmt)
         if d["status"]==True:
             created = datetime.datetime.strptime(d["finished"],StrptimeFmt)
@@ -218,26 +237,4 @@ class Task:
 
         return ttime,tstring
 
-    def color_priority(self, d):
 
-        if d["status"]==True:
-            return colored.blue(d["description"])
-        if d["priority"]==None:
-            return colored.white(d["description"])
-        elif d["priority"]==1:
-            return colored.red(d["description"])
-        if d["priority"]==2:
-            return colored.yellow(d["description"])
-        if d["priority"]==3:
-            return colored.green(d["description"])
-
-
-
-    def find_colsize(self, data):
-
-        maxlength = 0
-        lens = [len(x["description"]) for x in data ]
-        return max(lens)
-
-    def write_task(self, taskdetails):
-        self.db.insert(taskdetails)
