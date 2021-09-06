@@ -192,7 +192,8 @@ class Task:
 
         dkey = datanotdone[dno-1]["id"]
         Group = Query()
-        self.db.update({'status': True}, Group.id == dkey)
+        self.db.update({'status': True,
+         'finished': datetime.datetime.now().__str__()}, Group.id == dkey)
         print('updated')
 
 
