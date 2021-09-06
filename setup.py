@@ -19,7 +19,7 @@ setuptools.setup(
     install_requires=['rich', 'tinydb'],
     entry_points={
         'console_scripts': [
-            'clitasks = clitasks.bin.run:main',
+            'todo = clitasks.bin.run:main',
         ],
     }
 )

@@ -151,23 +151,26 @@ class Task:
         """
         Delete tasks
         """
-        data = self.output_tasks(group=group)
-        datadone, datanotdone = self.get_done_tasks(data)
+        if group == "all":
+            self.reset()
+        else:
+            data = self.output_tasks(group=group)
+            datadone, datanotdone = self.get_done_tasks(data)
 
-        if len(datanotdone) == 0:
-            print("nothing to delete!")
-            return
+            if len(datanotdone) == 0:
+                print("nothing to delete!")
+                return
 
-        #now ask for option
-        dno = IntPrompt.ask("Which task should be deleted? (1-%d)"%len(datanotdone))
-        if not (0 < dno <= len(datanotdone)):
-            print("choose a valid option")
-            return
+            #now ask for option
+            dno = IntPrompt.ask("Which task should be deleted? (1-%d)"%len(datanotdone))
+            if not (0 < dno <= len(datanotdone)):
+                print("choose a valid option")
+                return
 
-        dkey = datanotdone[dno]["id"]
-        Group = Query()
-        self.db.remove(Group.id == dkey)
-        print('deleted')
+            dkey = datanotdone[dno]["id"]
+            Group = Query()
+            self.db.remove(Group.id == dkey)
+            print('deleted')
 
     def done(self, group=None):
         """
@@ -203,7 +206,7 @@ class Task:
         dno = IntPrompt.ask("This will really delete all tasks, press 1 to continue.")        
         if dno==1:
             self.db.truncate()
-            
+
     def find_from_when(self, d):
         """
         Find from when task is pending
