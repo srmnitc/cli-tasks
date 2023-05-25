@@ -124,7 +124,6 @@ class Task:
         table.add_column("Group")
         
         for count, d in enumerate([*datanotdone, *datadone]):
-            print(d['priority'])
             time, timestr = self.find_from_when(d)
             if d["status"]:
                 r2 = ":heavy_check_mark:"
