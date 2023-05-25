@@ -108,7 +108,10 @@ class Task:
         Print formatted data
         """
         datadone, datanotdone = self.get_done_tasks(data)
-        donepercent = "%d"%(((len(datadone)/(len(datanotdone)+len(datadone)))*10000)//100)
+        try:
+            donepercent = "%d"%(((len(datadone)/(len(datanotdone)+len(datadone)))*10000)//100)
+        except:
+            donepercent = "0"
 
         table = Table(title="cli tasks", style="white")
         table.add_column("#")
