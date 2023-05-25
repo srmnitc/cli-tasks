@@ -34,7 +34,7 @@ class Task:
             print("task dir not found, creating one..")
             os.mkdir(self.taskdir)
         #start a db connection
-        self.db = db = TinyDB(self.taskfile)
+        self.db = TinyDB(self.taskfile)
 
     def write_task(self, taskdetails):
         """
@@ -83,7 +83,7 @@ class Task:
         """
         Color text according to priority
         """
-        prdict = {"1": "#EF5350", "2": "#FF8F00", "3": "#9E9D24", "0": "#78909C", "9":"#42A5F5"}
+        prdict = {"1": "#EF5350", "2": "#FF8F00", "3": "#9E9D24", "0": "#78909C", "9":"#42A5F5", "normal": "#9e9e9e"}
         text = Text()
         text.append(str(strtocolor), style=prdict[str(priority)])
         return text
@@ -121,7 +121,7 @@ class Task:
         table.add_column("Group")
         
         for count, d in enumerate([*datanotdone, *datadone]):
-            
+            print(d['priority'])
             time, timestr = self.find_from_when(d)
             if d["status"]:
                 r2 = ":heavy_check_mark:"

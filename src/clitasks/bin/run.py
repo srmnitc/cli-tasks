@@ -32,7 +32,7 @@ def main():
 	help="specify -w followed by task due date")
 	#priority
 	add_task.add_argument("-p", "--priority", required=False, 
-		type=int, choices=[1,2,3],
+		type=int, choices=[1,2,3], default=3,
 	help="specify -p followed by priority of 1,2 or 3")
 	#group
 	add_task.add_argument("-g", "--group", required=False,
